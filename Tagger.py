@@ -5,6 +5,14 @@ import hashlib
 from Image import Image
 from ConfigParser import ConfigParser
 
+def hashfile(afile, blocksize=65536):
+    hasher = hashlib.sha512()
+    buf = afile.read(blocksize)
+    while len(buf) > 0:
+        hasher.update(buf)
+        buf = afile.read(blocksize)
+    return str(hasher.hexdigest())
+
 class Tagger:
 	TAGFILE = ".tagger"
 	def __init__(self, directory):
@@ -22,12 +30,12 @@ class Tagger:
 						self.images[img["hash"]] = Image(json=img)
 				f.close()
 		except:
-			print("a wild exception appears !")
+			self.scan()
 			pass
 
 	def save(self):
 		with open(self.TAGFILE, "w") as f:
-			json.dump([img.__dict__ for imagehash, img in self.images.iteritems()], f)
+			json.dump([{"hash": imagehash, "location": img.location, "tags": img.tags} for imagehash, img in self.images.iteritems()], f)
 			f.close()
 
 	def scan(self):
@@ -40,19 +48,11 @@ class Tagger:
 
 	def addImage(self, afile):
 		with open(afile) as f:
-			hach = self.hashfile(f)
+			hach = hashfile(f)
 			print(hach)
 			if (hach not in self.images):
-				self.images[hach] = Image(hach, afile)
+				self.images[hach] = Image(afile)
 			f.close()
-
-	def hashfile(self, afile, blocksize=65536):
-	    hasher = hashlib.sha512()
-	    buf = afile.read(blocksize)
-	    while len(buf) > 0:
-	        hasher.update(buf)
-	        buf = afile.read(blocksize)
-	    return str(hasher.hexdigest())
 
 class MainWindow(gtk.Window):
 	def __init__(self, tagger):

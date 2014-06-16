@@ -1,15 +1,13 @@
 import os
 
 class Image:
-	def __init__(self, hach = None, location = None, tags = [], json = None):
+	def __init__(self, location = None, tags = [], json = None):
 		if (json):
 			self.tags = json["tags"]
 			self.location = json["location"]
-			self.hash = json["hash"]
 		else:
 			self.tags = tags
 			self.location = location
-			self.hash = hach
 
 	def __repr__(self):
 		return str(self.__dict__)
@@ -27,11 +25,11 @@ class Image:
 		self.tags.remove(tag)
 
 if __name__ == '__main__':
-	img = Image("caca", "05.jpg", ["caca", "brol"])
-	assert(str(img) == "{'hash': 'caca', 'location': '05.jpg', 'tags': ['caca', 'brol']}")
+	img = Image("05.jpg", ["caca", "brol"])
+	assert(str(img) == "{'location': '05.jpg', 'tags': ['caca', 'brol']}")
 	img.addTag("caca")
-	assert(str(img) == "{'hash': 'caca', 'location': '05.jpg', 'tags': ['caca', 'brol']}")
+	assert(str(img) == "{'location': '05.jpg', 'tags': ['caca', 'brol']}")
 	img.addTag("truc")
-	assert(str(img) == "{'hash': 'caca', 'location': '05.jpg', 'tags': ['caca', 'brol', 'truc']}")
+	assert(str(img) == "{'location': '05.jpg', 'tags': ['caca', 'brol', 'truc']}")
 	img.removeTag("caca")
-	assert(str(img) == "{'hash': 'caca', 'location': '05.jpg', 'tags': ['brol', 'truc']}")
+	assert(str(img) == "{'location': '05.jpg', 'tags': ['brol', 'truc']}")
