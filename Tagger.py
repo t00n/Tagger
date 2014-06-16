@@ -1,26 +1,58 @@
-from Image import Image
-from ConfigParser import ConfigParser
 import os
 import json
 import gtk
+import hashlib
+from Image import Image
+from ConfigParser import ConfigParser
 
 class Tagger:
 	TAGFILE = ".tagger"
 	def __init__(self, directory):
 		self.directory = directory
-		self.parseTags()
+		os.chdir(self.directory)
+		self.load()
 
-	def parseTags(self):
+	def load(self):
 		self.images = {}
-		# check if file exists else create it
-		with open(self.directory + self.TAGFILE, "r") as f:
-			gayson = json.load(f)
-			for img, tags in gayson.iteritems():
-				self.images[img] = Image(img, tags)
-				# check if file still exists, if not search it (by hash for example)
-				# or do that when you search for new files after this loop
+		try:
+			with open(self.TAGFILE, "r") as f:
+				gayson = json.load(f)
+				for img in gayson:
+					if (Image.isImage(img["location"])):
+						self.images[img["hash"]] = Image(json=img)
+				f.close()
+		except:
+			print("a wild exception appears !")
+			pass
+
+	def save(self):
+		with open(self.TAGFILE, "w") as f:
+			json.dump([img.__dict__ for imagehash, img in self.images.iteritems()], f)
 			f.close()
-		# search all new image files recursively and add them to .tagger
+
+	def scan(self):
+		for afile in os.listdir("."):
+			if (Image.isImage(afile)):
+				self.addImage(afile)
+			elif (os.path.isdir(afile)):
+				self.scan(afile)
+		self.save()
+
+	def addImage(self, afile):
+		with open(afile) as f:
+			hach = self.hashfile(f)
+			print(hach)
+			if (hach not in self.images):
+				self.images[hach] = Image(hach, afile)
+			f.close()
+
+	def hashfile(self, afile, blocksize=65536):
+	    hasher = hashlib.sha512()
+	    buf = afile.read(blocksize)
+	    while len(buf) > 0:
+	        hasher.update(buf)
+	        buf = afile.read(blocksize)
+	    return str(hasher.hexdigest())
 
 class MainWindow(gtk.Window):
 	def __init__(self, tagger):
@@ -32,4 +64,7 @@ class MainWindow(gtk.Window):
 if __name__ == '__main__':
 	folder = "test/"
 	tagger = Tagger(folder)
+	print(tagger.images)
+	# tagger.scan()
+	# print(tagger.images)
 	window = MainWindow(tagger)
