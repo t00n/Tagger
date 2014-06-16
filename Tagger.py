@@ -23,19 +23,20 @@ class Tagger:
 	def load(self):
 		self.images = {}
 		try:
+			print("loading...")
 			with open(self.TAGFILE, "r") as f:
 				gayson = json.load(f)
-				for img in gayson:
+				for imagehash, img in gayson.iteritems():
 					if (Image.isImage(img["location"])):
-						self.images[img["hash"]] = Image(json=img)
+						self.images[imagehash] = Image(json=img)
 				f.close()
 		except:
+			print("scanning...")
 			self.scan()
-			pass
 
 	def save(self):
 		with open(self.TAGFILE, "w") as f:
-			json.dump([{"hash": imagehash, "location": img.location, "tags": img.tags} for imagehash, img in self.images.iteritems()], f)
+			json.dump(dict((imagehash, img.__dict__) for imagehash, img in self.images.iteritems()), f)
 			f.close()
 
 	def scan(self):
@@ -49,7 +50,6 @@ class Tagger:
 	def addImage(self, afile):
 		with open(afile) as f:
 			hach = hashfile(f)
-			print(hach)
 			if (hach not in self.images):
 				self.images[hach] = Image(afile)
 			f.close()
