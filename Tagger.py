@@ -2,6 +2,7 @@ from Image import Image
 from ConfigParser import ConfigParser
 import os
 import json
+import gtk
 
 class Tagger:
 	TAGFILE = ".tagger"
@@ -17,9 +18,18 @@ class Tagger:
 			for img, tags in gayson.iteritems():
 				self.images[img] = Image(img, tags)
 				# check if file still exists, if not search it (by hash for example)
+				# or do that when you search for new files after this loop
 			f.close()
-		# list all image files recursively and add them to .tagger if not already in it
+		# search all new image files recursively and add them to .tagger
+
+class MainWindow(gtk.Window):
+	def __init__(self, tagger):
+		self.tagger = tagger
+		gtk.Window.__init__(self)
+		# self.show_all()
+		# gtk.main()
 
 if __name__ == '__main__':
 	folder = "test/"
 	tagger = Tagger(folder)
+	window = MainWindow(tagger)
