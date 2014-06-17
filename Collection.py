@@ -20,9 +20,8 @@ class Collection:
 			directory = directory + "/"
 		self.directory = directory
 		os.chdir(self.directory)
-		self.load()
 
-	def load(self):
+	def load(self, scan = True):
 		self.images = {}
 		try:
 			with open(self.TAGFILE, "r") as f:
@@ -31,20 +30,20 @@ class Collection:
 					image = Image(json=img)
 					if (image.isImage()):
 						self.images[imagehash] = image
-				f.close()
 		except:
+			pass
+		if (scan):
 			self.scan()
-		self.save()
 
 	def save(self):
 		with open(self.TAGFILE, "w") as f:
 			json.dump(dict((imagehash, img.__dict__) for imagehash, img in self.images.iteritems()), f)
-			f.close()
 
 	def scan(self, directory = "."):
 		for afile in os.listdir(directory):
 			filename = directory + "/" + afile
-			if (Image.isImage(filename)):
+			img = Image(filename)
+			if (img.isImage()):
 				self.addImage(filename)
 			elif (os.path.isdir(filename)):
 				self.scan(filename)
@@ -54,7 +53,6 @@ class Collection:
 			hach = hashfile(f)
 			if (hach not in self.images):
 				self.images[hach] = Image(afile)
-			f.close()
 
 	def query(self, query):
 		args = self.parseQueryArgs(query, "or")
