@@ -15,7 +15,7 @@ class Image:
 	# TODO Image.isImage
 	@staticmethod
 	def isImage(filename):
-		return os.path.isfile(filename) and filename.split(".")[-1] in ["jpg", "jpeg", "png"]
+		return os.path.isfile(filename) and filename.split(".")[-1].lower() in ["jpg", "jpeg", "png"]
 
 	def addTag(self, tag):
 		if tag not in self.tags:
