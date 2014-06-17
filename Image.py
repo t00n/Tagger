@@ -12,10 +12,8 @@ class Image:
 	def __repr__(self):
 		return str(self.__dict__)
 
-	# TODO Image.isImage
-	@staticmethod
-	def isImage(filename):
-		return os.path.isfile(filename) and filename.split(".")[-1].lower() in ["jpg", "jpeg", "png"]
+	def isImage(self):
+		return os.path.isfile(self.location) and self.location.split(".")[-1].lower() in ["jpg", "jpeg", "png"]
 
 	def addTag(self, tag):
 		if tag not in self.tags:

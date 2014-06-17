@@ -28,8 +28,9 @@ class Collection:
 			with open(self.TAGFILE, "r") as f:
 				gayson = json.load(f)
 				for imagehash, img in gayson.iteritems():
-					if (Image.isImage(img["location"])):
-						self.images[imagehash] = Image(json=img)
+					image = Image(json=img)
+					if (image.isImage()):
+						self.images[imagehash] = image
 				f.close()
 		except:
 			self.scan()
@@ -64,8 +65,6 @@ class Collection:
 			else:
 				ret = self.query(arg)
 		return ret
-
-		
 
 	def parseQueryArgs(self, query, operator):
 		args = query.split(" " + operator + " ")
@@ -111,5 +110,4 @@ if __name__ == '__main__':
 	assert(str(query) == "set([{'location': u'./03.jpg', 'tags': [u'03', u'Dragon Ball']}, {'location': u'./01.jpg', 'tags': [u'01', u'Dragon Ball']}])")
 	negquery = collection.query("01 and not Dragon Bal and not caca and not Dragon Ball or Dragon Ball")
 	assert(str(negquery) == "set([{'location': u'./soustest/05.jpg', 'tags': [u'05', u'Dragon Ball']}, {'location': u'./03.jpg', 'tags': [u'03', u'Dragon Ball']}, {'location': u'./01.jpg', 'tags': [u'01', u'Dragon Ball']}, {'location': u'./soustest/06.jpg', 'tags': [u'06', u'Dragon Ball']}])")
-	
 	
