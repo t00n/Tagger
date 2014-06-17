@@ -7,4 +7,4 @@ class Config:
 				gayson = json.load(f)
 				self.default_dir = gayson["default_dir"]
 		except:
-			pass
+			self.default_dir = "."

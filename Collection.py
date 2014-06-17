@@ -3,7 +3,6 @@ import json
 import hashlib
 import re
 from Image import Image
-from ConfigParser import ConfigParser
 
 def hashfile(afile, blocksize=65536):
     hasher = hashlib.sha512()
@@ -31,7 +30,7 @@ class Collection:
 					if (image.isImage()):
 						self.images[imagehash] = image
 		except:
-			pass
+			self.scan()
 		if (scan):
 			self.scan()
 
@@ -100,6 +99,7 @@ class Collection:
 
 if __name__ == '__main__':
 	collection = Collection("test")
+	collection.load()
 	queryAnd = collection.queryAnd("01 and Dragon Ball")
 	assert(str(queryAnd) == "set([{'location': u'./01.jpg', 'tags': [u'01', u'Dragon Ball']}])")
 	queryOr = collection.queryOr("01 or 03")
