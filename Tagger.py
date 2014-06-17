@@ -78,6 +78,56 @@ class Tagger:
 			exec("if (" + query + "): ret.append(image)")
 		print(ret)
 
+	def query2(self, query):
+		args = self.parseQueryArgs(query, "or")
+		print(args)
+		ret = set()
+		for arg in args:
+			if (" or " not in arg):
+				ret = ret | set(self.queryAnd(arg))
+			# elif (" and " not in arg):
+			# 	ret = ret & self.queryOr(arg)
+			else:
+				ret = self.query2(arg)
+		return ret
+
+		
+
+	def parseQueryArgs(self, query, operator):
+		args = query.split(" " + operator + " ")
+		for i in range(len(args)):
+			args[i] = re.sub(r"[^a-zA-Z0-9 ]", "", args[i])
+		return args
+
+	def queryAnd(self, query):
+		args = self.parseQueryArgs(query, "and")
+		print(args)
+		res = set()
+		for imagehash, img in self.images.iteritems():
+			tmp = True
+			for arg in args:
+				if (arg[:4] == "not " and arg[4:] not in img.tags):
+					pass
+				elif (arg not in img.tags):
+					tmp = False
+			if (tmp):
+				res.add(img)
+		return res
+
+	def queryOr(self, query):
+		args = self.parseQueryArgs(query, "or")
+		res = set()
+		for imagehash, img in self.images.iteritems():
+			tmp = False
+			for arg in args:
+				if (arg[:4] == "not " and arg[4:] in img.tags):
+					pass
+				elif (arg in img.tags):
+					tmp = True
+			if (tmp):
+				res.add(img)
+		return res
+
 class MainWindow(gtk.Window):
 	def __init__(self, tagger):
 		self.tagger = tagger
@@ -92,7 +142,16 @@ if __name__ == '__main__':
 	tagger = Tagger(args.directory)
 	# print(tagger.images)
 	# window = MainWindow(tagger)
-	# queryAnd = tagger.query("01 and Dragon Ball or not Dragon Ball or not 03")
-	queryAnd = tagger.query("a\"): print(\"caca\"); a=\"\" \nif(\"")
-	# 01 in ... and Dragon Ball in ... or not 05 in ... or 03 in ... and Dragon Ball in ...
-	print(queryAnd)
+	# query = tagger.query("01 and Dragon Ball or not Dragon Ball or not 03")
+	# query = tagger.query("a\"): print(\"caca\"); a=\"\" \nif(\"")
+	# print(query)
+	# queryAnd = tagger.queryAnd("01 and Dragon Ball and Dragon Ball")
+	# print(queryAnd)
+	# queryOr = tagger.queryOr("01 or 03")
+	# print(queryOr)
+	# query2 = tagger.query2("01 and Dragon Ball or 03 and Dragon Ball")
+	# print(query2)
+	# negquery = tagger.query2("01 and not Dragon Bal and not caca and not Dragon Ball or Dragon Ball")
+	# print(negquery)
+	negquery2 = tagger.query2("01 and Dragon Ball or not 03 and Dragon Ball")
+	print(negquery2)
