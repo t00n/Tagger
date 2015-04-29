@@ -26,8 +26,11 @@ else:
 	if (args.command == "scan"):
 		collection.scan()
 	elif (args.command == "query"):
-		# TODO query and show
-		print collection.query(args.query)
+		if (args.query):
+			# TODO query and show
+			print collection.query(args.query)
+		else:
+			print "Command \"query\" needs a query"
 	elif (args.command == "add"):
 		if (args.image and args.tags):
 			collection.addTags(args.image, args.tags)

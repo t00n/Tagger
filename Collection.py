@@ -5,12 +5,13 @@ import re
 from Image import Image
 
 def hashfile(afile, blocksize=65536):
-    hasher = hashlib.sha512()
-    buf = afile.read(blocksize)
-    while len(buf) > 0:
-        hasher.update(buf)
-        buf = afile.read(blocksize)
-    return str(hasher.hexdigest())
+	with open(afile, "r") as f:
+	    hasher = hashlib.sha1()
+	    buf = f.read(blocksize)
+	    while len(buf) > 0:
+	        hasher.update(buf)
+	        buf = f.read(blocksize)
+	    return str(hasher.hexdigest())
 
 class Collection:
 	TAGFILE = ".tagger"
@@ -68,10 +69,9 @@ class Collection:
 			self.image[hach].removeTags(tags)
 
 	def _addImage(self, afile):
-		with open(afile) as f:
-			hach = hashfile(f)
-			if (hach not in self.images):
-				self.images[hach] = Image(afile)
+		hach = hashfile(afile)
+		if (hach not in self.images):
+			self.images[hach] = Image(afile)
 
 	def _parseQueryArgs(self, query, operator):
 		args = query.split(" " + operator + " ")
