@@ -43,34 +43,44 @@ class Collection:
 			filename = directory + "/" + afile
 			img = Image(filename)
 			if (img.isImage()):
-				self.addImage(filename)
+				self._addImage(filename)
 			elif (os.path.isdir(filename)):
 				self.scan(filename)
 
-	def addImage(self, afile):
+	def query(self, query):
+		args = self._parseQueryArgs(query, "or")
+		ret = set()
+		for arg in args:
+			if (" or " not in arg):
+				ret = ret | set(self._queryAnd(arg))
+			else:
+				ret = self.query(arg)
+		return ret
+
+	def addTags(self, image, tags):
+		hach = hashfile(image)
+		if hach in self.images:
+			self.images[hach].addTags(tags)
+
+	def removeTags(self, image, tags):
+		hach = hashfile(image)
+		if hach in self.image:
+			self.image[hach].removeTags(tags)
+
+	def _addImage(self, afile):
 		with open(afile) as f:
 			hach = hashfile(f)
 			if (hach not in self.images):
 				self.images[hach] = Image(afile)
 
-	def query(self, query):
-		args = self.parseQueryArgs(query, "or")
-		ret = set()
-		for arg in args:
-			if (" or " not in arg):
-				ret = ret | set(self.queryAnd(arg))
-			else:
-				ret = self.query(arg)
-		return ret
-
-	def parseQueryArgs(self, query, operator):
+	def _parseQueryArgs(self, query, operator):
 		args = query.split(" " + operator + " ")
 		for i in range(len(args)):
 			args[i] = re.sub(r"[^a-zA-Z0-9 ]", "", args[i])
 		return args
 
-	def queryAnd(self, query):
-		args = self.parseQueryArgs(query, "and")
+	def _queryAnd(self, query):
+		args = self._parseQueryArgs(query, "and")
 		res = set()
 		for imagehash, img in self.images.iteritems():
 			tmp = True
@@ -83,8 +93,8 @@ class Collection:
 				res.add(img)
 		return res
 
-	def queryOr(self, query):
-		args = self.parseQueryArgs(query, "or")
+	def _queryOr(self, query):
+		args = self._parseQueryArgs(query, "or")
 		res = set()
 		for imagehash, img in self.images.iteritems():
 			tmp = False
@@ -100,10 +110,10 @@ class Collection:
 if __name__ == '__main__':
 	collection = Collection("test")
 	collection.load()
-	queryAnd = collection.queryAnd("01 and Dragon Ball")
-	assert(str(queryAnd) == "set([{'location': u'./01.jpg', 'tags': [u'01', u'Dragon Ball']}])")
-	queryOr = collection.queryOr("01 or 03")
-	assert(str(queryOr) == "set([{'location': u'./03.jpg', 'tags': [u'03', u'Dragon Ball']}, {'location': u'./01.jpg', 'tags': [u'01', u'Dragon Ball']}])")
+	_queryAnd = collection._queryAnd("01 and Dragon Ball")
+	assert(str(_queryAnd) == "set([{'location': u'./01.jpg', 'tags': [u'01', u'Dragon Ball']}])")
+	_queryOr = collection._queryOr("01 or 03")
+	assert(str(_queryOr) == "set([{'location': u'./03.jpg', 'tags': [u'03', u'Dragon Ball']}, {'location': u'./01.jpg', 'tags': [u'01', u'Dragon Ball']}])")
 	query = collection.query("01 and Dragon Ball or 03 and Dragon Ball")
 	assert(str(query) == "set([{'location': u'./03.jpg', 'tags': [u'03', u'Dragon Ball']}, {'location': u'./01.jpg', 'tags': [u'01', u'Dragon Ball']}])")
 	negquery = collection.query("01 and not Dragon Bal and not caca and not Dragon Ball or Dragon Ball")
