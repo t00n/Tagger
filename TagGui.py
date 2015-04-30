@@ -25,7 +25,6 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
 
     def keyPressEvent(self, event):
         """ """
-        # TODO add move image (maybe with drag and drop ?)
         if event.key() == QtCore.Qt.Key_Left:
             self._prevImage()
         elif event.key() == QtCore.Qt.Key_Right:
@@ -61,6 +60,7 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
         image = self._getCurrentImage()
         window_title = self.WINDOW_TITLE
         tags = ""
+        pixmap = QtGui.QPixmap()
         if image:
             # window title
             window_title += " - " + image.location
@@ -71,9 +71,9 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
             # image
             self._loadImage(image)
             pixmap = QtGui.QPixmap.fromImage(self.qImages[image.location])
-            self.imageLabel.setPixmap(pixmap)
         self.setWindowTitle(window_title)
         self.tagsEdit.setText(tags)
+        self.imageLabel.setPixmap(pixmap)
 
     def _prevImage(self):
         self.currentIndex -= 1
