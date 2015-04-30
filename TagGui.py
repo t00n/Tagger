@@ -10,6 +10,9 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
     def __init__(self, config, parent=None):
         super(TagGuiWindow, self).__init__(parent)
         self.setupUi(self)
+        self.setMouseTracking(True)
+        self.centralwidget.setMouseTracking(True)
+        self.imageLabel.setMouseTracking(True)
         self.actionOpen.triggered.connect(self._openCollection)
         self.actionScan.triggered.connect(self._scanCollection)
         self.actionSave.triggered.connect(self._saveCollection)
@@ -21,6 +24,9 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
         self.collection = None
         self.currentImages = []
         self.currentIndex = 0
+        self.currentImagePosition = [0, 0]
+        self.currentImageRect = [500, 500]
+        self.oldMousePosition = [0, 0]
         self.qImages = {}
 
     def keyPressEvent(self, event):
@@ -32,6 +38,15 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
         elif event.key() == QtCore.Qt.Key_Escape:
             self.setFocus()
 
+    def mouseMoveEvent(self, event):
+        deltaX, deltaY = event.x() - self.oldMousePosition[0], event.y() - self.oldMousePosition[1]
+        self.oldMousePosition = [event.x(), event.y()]
+        print self.currentImagePosition
+        if event.buttons() & QtCore.Qt.LeftButton:
+            self.currentImagePosition[0] += deltaX
+            self.currentImagePosition[1] += deltaY
+            self._showImage()
+
     def wheelEvent(self, event):
         """ docstring """
         image = self._getCurrentImage()
@@ -39,10 +54,8 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
             step = event.delta() / 5.0
             pixmap = self.imageLabel.pixmap()
             w, h = pixmap.width(), pixmap.height()
-            newW, newH = w + step, h + step
-            pixmap = QtGui.QPixmap.fromImage(self.qImages[image.location].scaled(newW, newH,                           QtCore.Qt.KeepAspectRatio, 
-                                            QtCore.Qt.SmoothTransformation))
-            self.imageLabel.setPixmap(pixmap)
+            self.currentImageRect = [w + step, h + step]
+            self._showImage()
 
     def _getCurrentImage(self):
         if 0 <= self.currentIndex < len(self.currentImages):
@@ -70,7 +83,19 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
             tags = tags[:-2]
             # image
             self._loadImage(image)
-            pixmap = QtGui.QPixmap.fromImage(self.qImages[image.location])
+            x, y = self.qImages[image.location].width(), self.qImages[image.location].height()
+            pixmap = QtGui.QPixmap.fromImage(
+                self.qImages[image.location]
+                    .copy(
+                        self.currentImagePosition[0], 
+                        self.currentImagePosition[1], 
+                        min(x, 500), 
+                        min(y,500))
+                    .scaled(
+                        self.currentImageRect[0], 
+                        self.currentImageRect[1], 
+                        QtCore.Qt.KeepAspectRatio, 
+                        QtCore.Qt.SmoothTransformation))
         self.setWindowTitle(window_title)
         self.tagsEdit.setText(tags)
         self.imageLabel.setPixmap(pixmap)

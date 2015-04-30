@@ -47,6 +47,7 @@ class Collection:
 			elif (os.path.isdir(filename)):
 				self.scan(filename)
 
+	# TODO query system : parenthesis and approximation
 	def query(self, query):
 		args = self._parseQueryArgs(query, "or")
 		ret = set()
