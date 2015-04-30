@@ -37,12 +37,12 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
         """ docstring """
         image = self._getCurrentImage()
         if image:
-            step = event.delta() / 30.0
+            step = event.delta() / 5.0
             pixmap = self.imageLabel.pixmap()
             w, h = pixmap.width(), pixmap.height()
             newW, newH = w + step, h + step
             pixmap = QtGui.QPixmap.fromImage(self.qImages[image.location].scaled(newW, newH,                           QtCore.Qt.KeepAspectRatio, 
-                                            QtCore.Qt.FastTransformation))
+                                            QtCore.Qt.SmoothTransformation))
             self.imageLabel.setPixmap(pixmap)
 
     def _getCurrentImage(self):

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'qt.ui'
 #
-# Created: Thu Apr 30 17:10:10 2015
+# Created: Thu Apr 30 17:32:06 2015
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -47,6 +47,7 @@ class Ui_MainWindow(object):
         self.imageLabel = QtGui.QLabel(self.centralwidget)
         self.imageLabel.setGeometry(QtCore.QRect(10, 100, 651, 431))
         self.imageLabel.setText(_fromUtf8(""))
+        self.imageLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.imageLabel.setObjectName(_fromUtf8("imageLabel"))
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
