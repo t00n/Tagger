@@ -34,8 +34,15 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
     def wheelEvent(self, event):
         """ docstring """
         if len(self.currentImages) > 0:
+            step = event.delta() / 30.0
             label = self.stackedWidget.currentWidget()
-            label.setSizeIncrement(event.delta(), event.delta())
+            pixmap = label.pixmap()
+            w, h = pixmap.width(), pixmap.height()
+            newW, newH = w + step, h + step
+            pixmap = QtGui.QPixmap.fromImage(self.qImages[self.currentImages[self.stackedWidget.currentIndex()].location].scaled(newW, newH, 
+                                            QtCore.Qt.KeepAspectRatio, 
+                                            QtCore.Qt.FastTransformation))
+            label.setPixmap(pixmap)
 
     def _selectImage(self, index):
         self.stackedWidget.setCurrentIndex(index)
