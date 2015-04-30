@@ -17,9 +17,9 @@
    <widget class="QLineEdit" name="queryEdit">
     <property name="geometry">
      <rect>
-      <x>20</x>
+      <x>70</x>
       <y>10</y>
-      <width>641</width>
+      <width>591</width>
       <height>22</height>
      </rect>
     </property>
@@ -41,6 +41,45 @@
     </property>
     <widget class="QWidget" name="page"/>
     <widget class="QWidget" name="page_2"/>
+   </widget>
+   <widget class="QLineEdit" name="tagsEdit">
+    <property name="geometry">
+     <rect>
+      <x>70</x>
+      <y>40</y>
+      <width>591</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="autoFillBackground">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>63</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Query :</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>63</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Tags :</string>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

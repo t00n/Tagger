@@ -15,9 +15,6 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
         self.actionSave.triggered.connect(self._saveCollection)
         self.actionExit.triggered.connect(self.close)
 
-        self.actionAdd_tags.triggered.connect(self._addTags)
-        self.actionRemove_tags.triggered.connect(self._removeTags)
-
         self.queryEdit.returnPressed.connect(self._queryCollection)
 
         self.collection = None
@@ -36,13 +33,19 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
         # TODO zoom in/out
         pass
 
-    # TODO select current image (for tags)
     def _selectImage(self, index):
         self.stackedWidget.setCurrentIndex(index)
         if 0 <= index < len(self.currentImages):
             self.setWindowTitle(self.WINDOW_TITLE + " - " + self.currentImages[index].location)
+            # tags
+            tags = ""
+            for tag in self.currentImages[self.stackedWidget.currentIndex()].tags:
+                tags += tag + ", "
+            tags = tags[:-2]
+            self.tagsEdit.setText(tags)
         else:
             self.setWindowTitle(self.WINDOW_TITLE)
+            self.tagsEdit.setText("")
 
     def _prevImage(self):
         index = self.stackedWidget.currentIndex() - 1
@@ -57,6 +60,7 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
         self._selectImage(index)
 
     def _displayImages(self):
+        # TODO optimize : do not delete everything everytime
         for i in reversed(range(self.stackedWidget.count())): 
             self.stackedWidget.widget(i).deleteLater()
         for image in self.currentImages:
@@ -91,12 +95,8 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
         if self.collection:
             self.collection.save()
 
-    def _addTags(self):
+    def _changeTags(self):
         # TODO add tags using a dialog
-        pass
-
-    def _removeTags(self):
-        # TODO remove tags using a dialog
         pass
 
 if __name__ == '__main__':
