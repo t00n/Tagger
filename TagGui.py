@@ -18,7 +18,11 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
         self.actionAdd_tags.triggered.connect(self._addTags)
         self.actionRemove_tags.triggered.connect(self._removeTags)
 
-        
+        self.queryEdit.returnPressed.connect(self._queryCollection)
+
+        self.collection = None
+        self.currentImages = []
+
     def keyPressEvent(self, event):
         """ """
         if event.key() == QtCore.Qt.Key_Left:
@@ -27,9 +31,6 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
             self._nextImage()
         elif event.key() == QtCore.Qt.Key_Escape:
             self.setFocus()
-        elif event.key() == QtCore.Qt.Key_Enter:
-            # TODO query
-            pass
 
     def mousePressEvent(self, event):
         # TODO zoom in/out
@@ -38,7 +39,10 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
     # TODO select current image (for tags)
     def _selectImage(self, index):
         self.stackedWidget.setCurrentIndex(index)
-        self.setWindowTitle(self.WINDOW_TITLE + " - " + self.currentImages[index].location)
+        if 0 <= index < len(self.currentImages):
+            self.setWindowTitle(self.WINDOW_TITLE + " - " + self.currentImages[index].location)
+        else:
+            self.setWindowTitle(self.WINDOW_TITLE)
 
     def _prevImage(self):
         index = self.stackedWidget.currentIndex() - 1
@@ -53,6 +57,8 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
         self._selectImage(index)
 
     def _displayImages(self):
+        for i in reversed(range(self.stackedWidget.count())): 
+            self.stackedWidget.widget(i).deleteLater()
         for image in self.currentImages:
             label = QtGui.QLabel()
             pixmap = QtGui.QPixmap(image.location)
@@ -60,24 +66,26 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
             self.stackedWidget.addWidget(label)
         self._selectImage(0)
 
-    def _queryImages(self):
-        # TODO use query edit here
-        self.currentImages = []
-        for image in self.collection.images.itervalues():
-            self.currentImages.append(image)
+    def _queryCollection(self):
+        if self.collection:
+            query = str(self.queryEdit.text())
+            print query
+            if query == "":
+                self.currentImages = self.collection.images.values()
+            else:
+                self.currentImages = list(self.collection.query(query))
+            self._displayImages()
 
     def _openCollection(self):
         dir = QtGui.QFileDialog.getExistingDirectory()
         if dir != "":
             self.collection = Collection(dir)
-            self._queryImages()
-            self._displayImages()
+            self._queryCollection()
 
     def _scanCollection(self):
         if self.collection:
             self.collection.scan()
-            self._queryImages()
-            self._displayImages()
+            self._queryCollection()
 
     def _saveCollection(self):
         if self.collection:
