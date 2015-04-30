@@ -20,6 +20,7 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
 
         self.collection = None
         self.currentImages = []
+        self.currentIndex = 0
         self.qImages = {}
 
     def keyPressEvent(self, event):
@@ -37,67 +38,61 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
         image = self._getCurrentImage()
         if image:
             step = event.delta() / 30.0
-            label = self.stackedWidget.currentWidget()
-            pixmap = label.pixmap()
+            pixmap = self.imageLabel.pixmap()
             w, h = pixmap.width(), pixmap.height()
             newW, newH = w + step, h + step
             pixmap = QtGui.QPixmap.fromImage(self.qImages[image.location].scaled(newW, newH,                           QtCore.Qt.KeepAspectRatio, 
                                             QtCore.Qt.FastTransformation))
-            label.setPixmap(pixmap)
+            self.imageLabel.setPixmap(pixmap)
 
     def _getCurrentImage(self):
-        if len(self.currentImages) > 0:
-            return self.currentImages[self.stackedWidget.currentIndex()]
+        if 0 <= self.currentIndex < len(self.currentImages):
+            return self.currentImages[self.currentIndex]
         else:
             return None
 
-    def _showImage(self, index):
-        self.stackedWidget.setCurrentIndex(index)
-        if 0 <= index < len(self.currentImages):
-            self.setWindowTitle(self.WINDOW_TITLE + " - " + self.currentImages[index].location)
+    def _loadImage(self, image):
+        if image.location not in self.qImages:
+            while (len(self.qImages) > 500):
+                self.qImages.pop(self.qImages.keys()[0])
+            self.qImages[image.location] = QtGui.QImage(image.location)
+
+    def _showImage(self):
+        image = self._getCurrentImage()
+        window_title = self.WINDOW_TITLE
+        tags = ""
+        if image:
+            # window title
+            window_title += " - " + image.location
             # tags
-            tags = ""
-            for tag in self.currentImages[self.stackedWidget.currentIndex()].tags:
+            for tag in image.tags:
                 tags += tag + ", "
             tags = tags[:-2]
-            self.tagsEdit.setText(tags)
-        else:
-            self.setWindowTitle(self.WINDOW_TITLE)
-            self.tagsEdit.setText("")
+            # image
+            self._loadImage(image)
+            pixmap = QtGui.QPixmap.fromImage(self.qImages[image.location])
+            self.imageLabel.setPixmap(pixmap)
+        self.setWindowTitle(window_title)
+        self.tagsEdit.setText(tags)
 
     def _prevImage(self):
-        index = self.stackedWidget.currentIndex() - 1
-        if index < 0:
-            index = self.stackedWidget.count() - 1
-        self._showImage(index)
+        self.currentIndex -= 1
+        if self.currentIndex < 0:
+            self.currentIndex = len(self.currentImages) - 1
+        self._showImage()
 
     def _nextImage(self):
-        index = self.stackedWidget.currentIndex() + 1
-        if index >= self.stackedWidget.count():
-            index = 0
-        self._showImage(index)
+        self.currentIndex += 1
+        if self.currentIndex >= len(self.currentImages):
+            self.currentIndex = 0
+        self._showImage()
 
     def _showCollection(self):
-        # TODO optimize : do not delete everything everytime
-        for i in reversed(range(self.stackedWidget.count())): 
-            self.stackedWidget.widget(i).deleteLater()
-        for image in self.currentImages:
-            if image.location in self.qImages:
-                label = QtGui.QLabel()
-                pixmap = QtGui.QPixmap.fromImage(self.qImages[image.location])
-                label.setPixmap(pixmap)
-                self.stackedWidget.addWidget(label)
-            else:
-                print "image ", image.location, " was not loaded. WTF"
-        self._showImage(0)
-
-    def _loadCollection(self):
-        """ Load collection in a dict of QImage to prevent multiple loading """
-        # TODO images are never deleted. Could be bad for memory obviously. Qt deletes ?
-        if self.collection:
-            for image in self.collection.images.itervalues():
-                if image.location not in self.qImages:
-                    self.qImages[image.location] = QtGui.QImage(image.location)
+        if self.currentIndex < 0:
+            self.currentIndex = 0
+        elif self.currentIndex >= len(self.currentImages):
+            self.currentIndex = len(self.currentImages) - 1
+        self._showImage()
 
     # Qt Actions
     def _queryCollection(self):
@@ -113,14 +108,12 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
         dir = QtGui.QFileDialog.getExistingDirectory()
         if dir != "":
             self.collection = Collection(dir)
-            self._loadCollection()
             self._queryCollection()
 
     def _scanCollection(self):
         """ Scan current collection for changes. Then load new images and show them """
         if self.collection:
             self.collection.scan()
-            self._loadCollection()
             self._queryCollection()
 
     def _saveCollection(self):

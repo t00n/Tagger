@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'qt.ui'
 #
-# Created: Thu Apr 30 14:28:49 2015
+# Created: Thu Apr 30 17:10:10 2015
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -34,9 +34,6 @@ class Ui_MainWindow(object):
         self.queryEdit.setAutoFillBackground(True)
         self.queryEdit.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
         self.queryEdit.setObjectName(_fromUtf8("queryEdit"))
-        self.stackedWidget = QtGui.QStackedWidget(self.centralwidget)
-        self.stackedWidget.setGeometry(QtCore.QRect(20, 70, 641, 461))
-        self.stackedWidget.setObjectName(_fromUtf8("stackedWidget"))
         self.tagsEdit = QtGui.QLineEdit(self.centralwidget)
         self.tagsEdit.setGeometry(QtCore.QRect(70, 40, 591, 22))
         self.tagsEdit.setAutoFillBackground(True)
@@ -47,6 +44,10 @@ class Ui_MainWindow(object):
         self.label_2 = QtGui.QLabel(self.centralwidget)
         self.label_2.setGeometry(QtCore.QRect(10, 40, 63, 16))
         self.label_2.setObjectName(_fromUtf8("label_2"))
+        self.imageLabel = QtGui.QLabel(self.centralwidget)
+        self.imageLabel.setGeometry(QtCore.QRect(10, 100, 651, 431))
+        self.imageLabel.setText(_fromUtf8(""))
+        self.imageLabel.setObjectName(_fromUtf8("imageLabel"))
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 24))
