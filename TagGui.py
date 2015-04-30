@@ -20,6 +20,7 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
 
         self.collection = None
         self.currentImages = []
+        self.qImages = {}
 
     def keyPressEvent(self, event):
         """ """
@@ -30,9 +31,11 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
         elif event.key() == QtCore.Qt.Key_Escape:
             self.setFocus()
 
-    def mousePressEvent(self, event):
-        # TODO zoom in/out
-        pass
+    def wheelEvent(self, event):
+        """ docstring """
+        if len(self.currentImages) > 0:
+            label = self.stackedWidget.currentWidget()
+            label.setSizeIncrement(event.delta(), event.delta())
 
     def _selectImage(self, index):
         self.stackedWidget.setCurrentIndex(index)
@@ -65,16 +68,18 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
         for i in reversed(range(self.stackedWidget.count())): 
             self.stackedWidget.widget(i).deleteLater()
         for image in self.currentImages:
-            label = QtGui.QLabel()
-            pixmap = QtGui.QPixmap(image.location)
-            label.setPixmap(pixmap)
-            self.stackedWidget.addWidget(label)
+            if image.location in self.qImages:
+                label = QtGui.QLabel()
+                pixmap = QtGui.QPixmap.fromImage(self.qImages[image.location])
+                label.setPixmap(pixmap)
+                self.stackedWidget.addWidget(label)
+            else:
+                print "image ", image.location, " was not loaded. WTF"
         self._selectImage(0)
 
     def _queryCollection(self):
         if self.collection:
             query = str(self.queryEdit.text())
-            print query
             if query == "":
                 self.currentImages = self.collection.images.values()
             else:
@@ -85,7 +90,13 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
         dir = QtGui.QFileDialog.getExistingDirectory()
         if dir != "":
             self.collection = Collection(dir)
+            self._loadCollection()
             self._queryCollection()
+
+    def _loadCollection(self):
+        # TODO images are never deleted. Could be bad for memory obviously
+        for image in self.collection.images.itervalues():
+            self.qImages[image.location] = QtGui.QImage(image.location)
 
     def _scanCollection(self):
         if self.collection:

@@ -21,6 +21,7 @@ class Collection:
 		os.chdir(directory)
 		self.load()
 
+	# TODO optimize load and scan
 	def load(self):
 		self.images = {}
 		try:
