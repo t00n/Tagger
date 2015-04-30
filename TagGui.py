@@ -24,6 +24,7 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
 
     def keyPressEvent(self, event):
         """ """
+        # TODO add move image (maybe with drag and drop ?)
         if event.key() == QtCore.Qt.Key_Left:
             self._prevImage()
         elif event.key() == QtCore.Qt.Key_Right:
@@ -33,18 +34,24 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
 
     def wheelEvent(self, event):
         """ docstring """
-        if len(self.currentImages) > 0:
+        image = self._getCurrentImage()
+        if image:
             step = event.delta() / 30.0
             label = self.stackedWidget.currentWidget()
             pixmap = label.pixmap()
             w, h = pixmap.width(), pixmap.height()
             newW, newH = w + step, h + step
-            pixmap = QtGui.QPixmap.fromImage(self.qImages[self.currentImages[self.stackedWidget.currentIndex()].location].scaled(newW, newH, 
-                                            QtCore.Qt.KeepAspectRatio, 
+            pixmap = QtGui.QPixmap.fromImage(self.qImages[image.location].scaled(newW, newH,                           QtCore.Qt.KeepAspectRatio, 
                                             QtCore.Qt.FastTransformation))
             label.setPixmap(pixmap)
 
-    def _selectImage(self, index):
+    def _getCurrentImage(self):
+        if len(self.currentImages) > 0:
+            return self.currentImages[self.stackedWidget.currentIndex()]
+        else:
+            return None
+
+    def _showImage(self, index):
         self.stackedWidget.setCurrentIndex(index)
         if 0 <= index < len(self.currentImages):
             self.setWindowTitle(self.WINDOW_TITLE + " - " + self.currentImages[index].location)
@@ -62,15 +69,15 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
         index = self.stackedWidget.currentIndex() - 1
         if index < 0:
             index = self.stackedWidget.count() - 1
-        self._selectImage(index)
+        self._showImage(index)
 
     def _nextImage(self):
         index = self.stackedWidget.currentIndex() + 1
         if index >= self.stackedWidget.count():
             index = 0
-        self._selectImage(index)
+        self._showImage(index)
 
-    def _displayImages(self):
+    def _showCollection(self):
         # TODO optimize : do not delete everything everytime
         for i in reversed(range(self.stackedWidget.count())): 
             self.stackedWidget.widget(i).deleteLater()
@@ -82,16 +89,25 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
                 self.stackedWidget.addWidget(label)
             else:
                 print "image ", image.location, " was not loaded. WTF"
-        self._selectImage(0)
+        self._showImage(0)
 
+    def _loadCollection(self):
+        """ Load collection in a dict of QImage to prevent multiple loading """
+        # TODO images are never deleted. Could be bad for memory obviously. Qt deletes ?
+        if self.collection:
+            for image in self.collection.images.itervalues():
+                if image.location not in self.qImages:
+                    self.qImages[image.location] = QtGui.QImage(image.location)
+
+    # Qt Actions
     def _queryCollection(self):
         if self.collection:
-            query = str(self.queryEdit.text())
+            query = str(self.queryEdit.text()).strip()
             if query == "":
                 self.currentImages = self.collection.images.values()
             else:
                 self.currentImages = list(self.collection.query(query))
-            self._displayImages()
+            self._showCollection()
 
     def _openCollection(self):
         dir = QtGui.QFileDialog.getExistingDirectory()
@@ -100,14 +116,11 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
             self._loadCollection()
             self._queryCollection()
 
-    def _loadCollection(self):
-        # TODO images are never deleted. Could be bad for memory obviously
-        for image in self.collection.images.itervalues():
-            self.qImages[image.location] = QtGui.QImage(image.location)
-
     def _scanCollection(self):
+        """ Scan current collection for changes. Then load new images and show them """
         if self.collection:
             self.collection.scan()
+            self._loadCollection()
             self._queryCollection()
 
     def _saveCollection(self):
@@ -115,9 +128,11 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
             self.collection.save()
 
     def _changeTags(self):
-        tags = map(lambda s: s.strip(), str(self.tagsEdit.text()).split(","))
-        print tags
-        self.currentImages[self.stackedWidget.currentIndex()].tags = tags
+        """ Retrieve tags from tags line edit and assign them to current image """
+        image = self._getCurrentImage()
+        if image:
+            tags = map(lambda s: s.strip(), str(self.tagsEdit.text()).split(","))
+            image.tags = tags
 
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
