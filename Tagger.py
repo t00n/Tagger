@@ -14,6 +14,8 @@ config = Config()
 
 if (args.directory):
 	directory = args.directory
+elif (args.image):
+	directory = "/".join(args.image.split("/")[:-1])
 else:
 	directory = config.default_dir
 collection = Collection(directory)
