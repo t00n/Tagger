@@ -17,6 +17,26 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
         self.actionAdd_tags.triggered.connect(self.addTags)
         self.actionRemove_tags.triggered.connect(self.removeTags)
 
+        
+    def keyPressEvent(self, event):
+        """ """
+        if event.key() == QtCore.Qt.Key_Left or event.key() == QtCore.Qt.Key_Escape:
+            self.prevImage()
+        elif event.key() == QtCore.Qt.Key_Right:
+            self.nextImage()
+
+    def prevImage(self):
+        index = self.stackedWidget.currentIndex() - 1
+        if index < 0:
+            index = self.stackedWidget.count() - 1
+        self.stackedWidget.setCurrentIndex(index)
+
+    def nextImage(self):
+        index = self.stackedWidget.currentIndex() + 1
+        if index >= self.stackedWidget.count():
+            index = 0
+        self.stackedWidget.setCurrentIndex(index)
+
 
     def openCollection(self):
         dir = QtGui.QFileDialog.getExistingDirectory()
