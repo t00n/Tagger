@@ -16,6 +16,7 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
         self.actionExit.triggered.connect(self.close)
 
         self.queryEdit.returnPressed.connect(self._queryCollection)
+        self.tagsEdit.returnPressed.connect(self._changeTags)
 
         self.collection = None
         self.currentImages = []
@@ -96,8 +97,9 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
             self.collection.save()
 
     def _changeTags(self):
-        # TODO add tags using a dialog
-        pass
+        tags = map(lambda s: s.strip(), str(self.tagsEdit.text()).split(","))
+        print tags
+        self.currentImages[self.stackedWidget.currentIndex()].tags = tags
 
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
