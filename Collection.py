@@ -18,10 +18,10 @@ class Collection:
 	def __init__(self, directory):
 		if (directory[-1] != "/"):
 			directory = directory + "/"
-		self.directory = directory
-		os.chdir(self.directory)
+		os.chdir(directory)
+		self.load()
 
-	def load(self, scan = True):
+	def load(self):
 		self.images = {}
 		try:
 			with open(self.TAGFILE, "r") as f:
@@ -31,8 +31,6 @@ class Collection:
 					if (image.isImage()):
 						self.images[imagehash] = image
 		except:
-			self.scan()
-		if (scan):
 			self.scan()
 
 	def save(self):
