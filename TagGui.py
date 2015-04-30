@@ -25,6 +25,7 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
         self.currentImages = []
         self.currentIndex = 0
         self.currentImagePosition = [0, 0]
+        # TODO magic numbers here
         self.currentImageRect = [500, 500]
         self.oldMousePosition = [0, 0]
         self.qImages = {}
@@ -41,11 +42,10 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
     def mouseMoveEvent(self, event):
         deltaX, deltaY = event.x() - self.oldMousePosition[0], event.y() - self.oldMousePosition[1]
         self.oldMousePosition = [event.x(), event.y()]
-        print self.currentImagePosition
         if event.buttons() & QtCore.Qt.LeftButton:
             self.currentImagePosition[0] += deltaX
             self.currentImagePosition[1] += deltaY
-            self._showImage()
+            self._updateImage()
 
     def wheelEvent(self, event):
         """ docstring """
@@ -55,7 +55,7 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
             pixmap = self.imageLabel.pixmap()
             w, h = pixmap.width(), pixmap.height()
             self.currentImageRect = [w + step, h + step]
-            self._showImage()
+            self._updateImage()
 
     def _getCurrentImage(self):
         if 0 <= self.currentIndex < len(self.currentImages):
@@ -65,6 +65,7 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
 
     def _loadImage(self, image):
         if image.location not in self.qImages:
+            # TODO magic number here
             while (len(self.qImages) > 500):
                 self.qImages.pop(self.qImages.keys()[0])
             self.qImages[image.location] = QtGui.QImage(image.location)
@@ -73,7 +74,6 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
         image = self._getCurrentImage()
         window_title = self.WINDOW_TITLE
         tags = ""
-        pixmap = QtGui.QPixmap()
         if image:
             # window title
             window_title += " - " + image.location
@@ -84,20 +84,32 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
             # image
             self._loadImage(image)
             x, y = self.qImages[image.location].width(), self.qImages[image.location].height()
+            # TODO WTF -70 and magic numbers
+            self.currentImagePosition = [x/2-500, -70]
+            self._updateImage()
+        self.setWindowTitle(window_title)
+        self.tagsEdit.setText(tags)
+
+    def _updateImage(self):
+        image = self._getCurrentImage()
+        pixmap = QtGui.QPixmap()
+        if image:
+            print "---------------"
+            print self.currentImagePosition
+            print self.currentImageRect
             pixmap = QtGui.QPixmap.fromImage(
                 self.qImages[image.location]
                     .copy(
                         self.currentImagePosition[0], 
                         self.currentImagePosition[1], 
-                        min(x, 500), 
-                        min(y,500))
+                        # TODO magic numbers here
+                        1000, 
+                        1000)
                     .scaled(
                         self.currentImageRect[0], 
                         self.currentImageRect[1], 
                         QtCore.Qt.KeepAspectRatio, 
                         QtCore.Qt.SmoothTransformation))
-        self.setWindowTitle(window_title)
-        self.tagsEdit.setText(tags)
         self.imageLabel.setPixmap(pixmap)
 
     def _prevImage(self):
