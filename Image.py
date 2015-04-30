@@ -13,7 +13,7 @@ class Image:
 		return str(self.__dict__)
 
 	def isImage(self):
-		return os.path.isfile(self.location) and self.location.split(".")[-1].lower() in ["jpg", "jpeg", "png"]
+		return os.path.isfile(self.location) and self.location.split(".")[-1].lower() in ["jpg", "jpeg", "png", "gif", "jpe"]
 
 	def addTags(self, tags):
 		for tag in tags:

@@ -5,7 +5,7 @@ import argparse
 parser = argparse.ArgumentParser(description="Tag your pictures and view it with your favorite image viewer !")
 parser.add_argument("command", type=str, help="Command to use. One of scan, query, add or remove")
 parser.add_argument("-d", "--directory", type=str, help="Collection directory")
-parser.add_argument("-i", "--image", type=str, help="Picture to modify")
+parser.add_argument("-i", "--images", type=str, metavar='N', nargs='*', help="Pictures to modify")
 parser.add_argument("-t", "--tags", type=str, metavar='N', nargs='*', help="Tags to add or remove")
 parser.add_argument("-q", "--query", type=str, help="Query to send")
 args = parser.parse_args()
@@ -14,8 +14,8 @@ config = Config()
 
 if (args.directory):
 	directory = args.directory
-elif (args.image):
-	directory = "/".join(args.image.split("/")[:-1])
+elif (args.images):
+	directory = "/".join(args.images[0].split("/")[:-1])
 else:
 	directory = config.default_dir
 collection = Collection(directory)
@@ -29,13 +29,15 @@ elif (args.command == "query"):
 	else:
 		print "Command \"query\" needs a query"
 elif (args.command == "add"):
-	if (args.image and args.tags):
-		collection.addTags(args.image, args.tags)
+	if (args.images and args.tags):
+		for image in args.images:
+			collection.addTags(image, args.tags)
 	else:
 		print "Command \"add\" needs an image and tags"
 elif (args.command == "remove"):
-	if (args.image and args.tags):
-		collection.removeTags(args.image, args.tags)
+	if (args.images and args.tags):
+		for image in args.images:
+			collection.removeTags(image, args.tags)
 	else:
 		print "Command \"remove\" needs an image and tags"
 

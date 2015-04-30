@@ -62,7 +62,6 @@ class Collection:
 		hach = hashfile(image)
 		if hach in self.images:
 			self.images[hach].addTags(tags)
-			print self.images[hach].tags
 
 	def removeTags(self, image, tags):
 		hach = hashfile(image)
