@@ -38,7 +38,7 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
     # TODO select current image (for tags)
     def _selectImage(self, index):
         self.stackedWidget.setCurrentIndex(index)
-        self.windowTitle = self.WINDOW_TITLE + " - "
+        self.setWindowTitle(self.WINDOW_TITLE + " - " + self.currentImages[index].location)
 
     def _prevImage(self):
         index = self.stackedWidget.currentIndex() - 1
@@ -52,20 +52,32 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
             index = 0
         self._selectImage(index)
 
+    def _displayImages(self):
+        for image in self.currentImages:
+            label = QtGui.QLabel()
+            pixmap = QtGui.QPixmap(image.location)
+            label.setPixmap(pixmap)
+            self.stackedWidget.addWidget(label)
+        self._selectImage(0)
+
+    def _queryImages(self):
+        # TODO use query edit here
+        self.currentImages = []
+        for image in self.collection.images.itervalues():
+            self.currentImages.append(image)
+
     def _openCollection(self):
         dir = QtGui.QFileDialog.getExistingDirectory()
         if dir != "":
             self.collection = Collection(dir)
-            for image in self.collection.images.itervalues():
-                label = QtGui.QLabel()
-                pixmap = QtGui.QPixmap(image.location)
-                label.setPixmap(pixmap)
-                # label.setText(image.location)
-                self.stackedWidget.addWidget(label)
+            self._queryImages()
+            self._displayImages()
 
     def _scanCollection(self):
         if self.collection:
             self.collection.scan()
+            self._queryImages()
+            self._displayImages()
 
     def _saveCollection(self):
         if self.collection:

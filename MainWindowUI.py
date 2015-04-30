@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'qt.ui'
 #
-# Created: Thu Apr 30 02:17:14 2015
+# Created: Thu Apr 30 13:29:12 2015
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -79,7 +79,7 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow", None))
+        MainWindow.setWindowTitle(_translate("MainWindow", "TagGui", None))
         self.menuFile.setTitle(_translate("MainWindow", "File", None))
         self.menuImage.setTitle(_translate("MainWindow", "Image", None))
         self.menuHelp.setTitle(_translate("MainWindow", "Help", None))
