@@ -36,6 +36,9 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
             self._nextImage()
         elif event.key() == QtCore.Qt.Key_Escape:
             self.setFocus()
+        elif event.key() == QtCore.Qt.Key_Space:
+            self.currentImagePosition = [0, 0]
+            self._showImage()
 
     def mouseMoveEvent(self, event):
         deltaX, deltaY = event.x() - self.oldMousePosition[0], event.y() - self.oldMousePosition[1]
@@ -87,7 +90,6 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
             # image
             self._loadImage(image)
             x, y = self.qImages[image.location].width(), self.qImages[image.location].height()
-            # TODO WTF -70 and magic numbers
             self.currentImagePosition = [0, 0]
             self.currentImageRect = [x, y]
             self.currentImageZoom = deepcopy(self.currentImageRect)
