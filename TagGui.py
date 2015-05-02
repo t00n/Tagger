@@ -91,8 +91,10 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
             self._loadImage(image)
             x, y = self.qImages[image.location].width(), self.qImages[image.location].height()
             self.currentImagePosition = [0, 0]
-            self.currentImageRect = [x, y]
-            self.currentImageZoom = deepcopy(self.currentImageRect)
+            # size = [max(1000, x), max(1000, y)]
+            size = [x,y]
+            self.currentImageRect = deepcopy(size)
+            self.currentImageZoom = deepcopy(size)
             self._updateImage()
         self.setWindowTitle(window_title)
         self.tagsEdit.setText(tags)
@@ -114,7 +116,6 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
                         self.currentImageZoom[1], 
                         QtCore.Qt.KeepAspectRatio, 
                         QtCore.Qt.SmoothTransformation))
-            # TODO enlarge pixmap
         self.imageLabel.setPixmap(pixmap)
 
     def _prevImage(self):
