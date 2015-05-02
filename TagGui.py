@@ -22,11 +22,14 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
         self.queryEdit.returnPressed.connect(self._queryCollection)
         self.tagsEdit.returnPressed.connect(self._changeTags)
 
-        self.collection = None
+
         self.currentImages = []
         self.currentIndex = 0
         self.oldMousePosition = [0, 0]
         self.qImages = {}
+        # TODO remove test mode
+        self.collection = Collection("/home/toon/Pictures")
+        self._queryCollection()
 
     def keyPressEvent(self, event):
         """ """
@@ -104,13 +107,18 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
         pixmap = QtGui.QPixmap()
         if image:
             x, y = self.qImages[image.location].width(), self.qImages[image.location].height()
+            # screen_size = QtGui.QDesktopWidget().screenGeometry()
+            # self.maximumSize = screen_size
+            print "position", self.currentImagePosition
+            print "rect", self.currentImageRect
+            print "zoom", self.currentImageZoom
             pixmap = QtGui.QPixmap.fromImage(
                 self.qImages[image.location]
                     .copy(
                         self.currentImagePosition[0], 
                         self.currentImagePosition[1],
-                        self.currentImageRect[0], 
-                        self.currentImageRect[1])
+                        max(x, self.currentImageRect[0]), 
+                        max(y, self.currentImageRect[1]))
                     .scaled(
                         self.currentImageZoom[0], 
                         self.currentImageZoom[1], 
