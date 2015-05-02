@@ -24,9 +24,6 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
         self.collection = None
         self.currentImages = []
         self.currentIndex = 0
-        self.currentImagePosition = [0, 0]
-        # TODO magic numbers here
-        self.currentImageRect = [500, 500]
         self.oldMousePosition = [0, 0]
         self.qImages = {}
 
@@ -54,8 +51,13 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
             step = event.delta() / 5.0
             pixmap = self.imageLabel.pixmap()
             w, h = pixmap.width(), pixmap.height()
-            self.currentImageRect = [w + step, h + step]
+            self.currentImageZoom = [w + step, h + step]
             self._updateImage()
+
+    def resizeEvent(self, event):
+        self.size = event.size()
+        self.deltaSize = event.size()-event.oldSize()
+        self.centralwidget.resize(self.centralwidget.size() + (self.deltaSize))
 
     def _getCurrentImage(self):
         if 0 <= self.currentIndex < len(self.currentImages):
@@ -85,7 +87,9 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
             self._loadImage(image)
             x, y = self.qImages[image.location].width(), self.qImages[image.location].height()
             # TODO WTF -70 and magic numbers
-            self.currentImagePosition = [x/2-500, -70]
+            self.currentImagePosition = [0, 0]
+            self.currentImageRect = [x, y]
+            self.currentImageZoom = [x, y]
             self._updateImage()
         self.setWindowTitle(window_title)
         self.tagsEdit.setText(tags)
@@ -94,7 +98,9 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
         image = self._getCurrentImage()
         pixmap = QtGui.QPixmap()
         if image:
+            x, y = self.qImages[image.location].width(), self.qImages[image.location].height()
             print "---------------"
+            print x, y
             print self.currentImagePosition
             print self.currentImageRect
             pixmap = QtGui.QPixmap.fromImage(
@@ -103,13 +109,14 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
                         self.currentImagePosition[0], 
                         self.currentImagePosition[1], 
                         # TODO magic numbers here
-                        1000, 
-                        1000)
-                    .scaled(
                         self.currentImageRect[0], 
-                        self.currentImageRect[1], 
+                        self.currentImageRect[1])
+                    .scaled(
+                        self.currentImageZoom[0], 
+                        self.currentImageZoom[1], 
                         QtCore.Qt.KeepAspectRatio, 
                         QtCore.Qt.SmoothTransformation))
+            # TODO enlarge pixmap
         self.imageLabel.setPixmap(pixmap)
 
     def _prevImage(self):
