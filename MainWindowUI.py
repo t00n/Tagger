@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'qt.ui'
 #
-# Created: Thu Apr 30 17:32:06 2015
+# Created: Sat May  2 18:50:01 2015
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,32 +26,42 @@ except AttributeError:
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
-        MainWindow.resize(800, 600)
+        MainWindow.resize(838, 600)
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
+        self.gridLayout_2 = QtGui.QGridLayout(self.centralwidget)
+        self.gridLayout_2.setObjectName(_fromUtf8("gridLayout_2"))
+        self.gridLayout = QtGui.QGridLayout()
+        self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
         self.queryEdit = QtGui.QLineEdit(self.centralwidget)
-        self.queryEdit.setGeometry(QtCore.QRect(70, 10, 591, 22))
         self.queryEdit.setAutoFillBackground(True)
         self.queryEdit.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
         self.queryEdit.setObjectName(_fromUtf8("queryEdit"))
+        self.gridLayout.addWidget(self.queryEdit, 1, 1, 1, 1)
         self.tagsEdit = QtGui.QLineEdit(self.centralwidget)
-        self.tagsEdit.setGeometry(QtCore.QRect(70, 40, 591, 22))
         self.tagsEdit.setAutoFillBackground(True)
         self.tagsEdit.setObjectName(_fromUtf8("tagsEdit"))
+        self.gridLayout.addWidget(self.tagsEdit, 2, 1, 1, 1)
         self.label = QtGui.QLabel(self.centralwidget)
-        self.label.setGeometry(QtCore.QRect(10, 10, 63, 16))
         self.label.setObjectName(_fromUtf8("label"))
+        self.gridLayout.addWidget(self.label, 1, 0, 1, 1)
         self.label_2 = QtGui.QLabel(self.centralwidget)
-        self.label_2.setGeometry(QtCore.QRect(10, 40, 63, 16))
         self.label_2.setObjectName(_fromUtf8("label_2"))
+        self.gridLayout.addWidget(self.label_2, 2, 0, 1, 1)
         self.imageLabel = QtGui.QLabel(self.centralwidget)
-        self.imageLabel.setGeometry(QtCore.QRect(10, 100, 651, 431))
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.imageLabel.sizePolicy().hasHeightForWidth())
+        self.imageLabel.setSizePolicy(sizePolicy)
         self.imageLabel.setText(_fromUtf8(""))
         self.imageLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.imageLabel.setObjectName(_fromUtf8("imageLabel"))
+        self.gridLayout.addWidget(self.imageLabel, 3, 1, 1, 1)
+        self.gridLayout_2.addLayout(self.gridLayout, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 24))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 838, 24))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         self.menuFile = QtGui.QMenu(self.menubar)
         self.menuFile.setObjectName(_fromUtf8("menuFile"))

@@ -59,7 +59,6 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
             self._updateImage()
 
     def resizeEvent(self, event):
-        self.size = event.size()
         self.deltaSize = event.size()-event.oldSize()
         self.centralwidget.resize(self.centralwidget.size() + (self.deltaSize))
 
@@ -91,8 +90,9 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
             self._loadImage(image)
             x, y = self.qImages[image.location].width(), self.qImages[image.location].height()
             self.currentImagePosition = [0, 0]
-            # size = [max(1000, x), max(1000, y)]
-            size = [x,y]
+            screen_size = QtGui.QDesktopWidget().screenGeometry()
+            size = [min(screen_size.width(), x), min(screen_size.height(), y)]
+            # size = [x,y]
             self.currentImageRect = deepcopy(size)
             self.currentImageZoom = deepcopy(size)
             self._updateImage()
