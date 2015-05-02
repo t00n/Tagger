@@ -1,5 +1,6 @@
 from PyQt4 import QtGui, QtCore
 import sys
+from copy import deepcopy
 
 from Config import Config
 from Collection import Collection
@@ -40,8 +41,8 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
         deltaX, deltaY = event.x() - self.oldMousePosition[0], event.y() - self.oldMousePosition[1]
         self.oldMousePosition = [event.x(), event.y()]
         if event.buttons() & QtCore.Qt.LeftButton:
-            self.currentImagePosition[0] += deltaX
-            self.currentImagePosition[1] += deltaY
+            self.currentImagePosition[0] -= deltaX
+            self.currentImagePosition[1] -= deltaY
             self._updateImage()
 
     def wheelEvent(self, event):
@@ -89,7 +90,7 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
             # TODO WTF -70 and magic numbers
             self.currentImagePosition = [0, 0]
             self.currentImageRect = [x, y]
-            self.currentImageZoom = [x, y]
+            self.currentImageZoom = deepcopy(self.currentImageRect)
             self._updateImage()
         self.setWindowTitle(window_title)
         self.tagsEdit.setText(tags)
@@ -99,16 +100,11 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
         pixmap = QtGui.QPixmap()
         if image:
             x, y = self.qImages[image.location].width(), self.qImages[image.location].height()
-            print "---------------"
-            print x, y
-            print self.currentImagePosition
-            print self.currentImageRect
             pixmap = QtGui.QPixmap.fromImage(
                 self.qImages[image.location]
                     .copy(
                         self.currentImagePosition[0], 
-                        self.currentImagePosition[1], 
-                        # TODO magic numbers here
+                        self.currentImagePosition[1],
                         self.currentImageRect[0], 
                         self.currentImageRect[1])
                     .scaled(
