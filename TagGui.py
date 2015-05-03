@@ -27,7 +27,7 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
         self.currentIndex = 0
         self.oldMousePosition = [0, 0]
         self.qImages = {}
-        self.zoom = 100
+        self.zoom = 1.0
         # TODO remove test mode
         self.collection = Collection("/home/toon/Pictures")
         self._queryCollection()
@@ -56,9 +56,8 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
         """ docstring """
         image = self._getCurrentImage()
         if image:
-            step = event.delta() / 60.0
+            step = event.delta() / 6000.0
             self.zoom += step
-            print "zoom : ", self.zoom, "%"
             self._updateImage()
 
     def resizeEvent(self, event):
@@ -94,6 +93,7 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
             x, y = self.qImages[image.location].width(), self.qImages[image.location].height()
             self.currentImagePosition = [0, 0]
             self.maxImageRect = [x, y]
+            self.zoom = 1.0
             self._updateImage()
         self.setWindowTitle(window_title)
         self.tagsEdit.setText(tags)
@@ -105,10 +105,6 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
             x, y = self.qImages[image.location].width(), self.qImages[image.location].height()
             screen_size = QtGui.QDesktopWidget().screenGeometry()
             size = [min(screen_size.width(), x), min(screen_size.height(), y)]
-            print "position", self.currentImagePosition
-            print "image", x, y
-            print "rect", self.maxImageRect
-            print "zoom", int(x*self.zoom/100.0), int(y*self.zoom/100.0)
             pixmap = QtGui.QPixmap.fromImage(
                 self.qImages[image.location]
                     .copy(
@@ -117,8 +113,8 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
                         self.maxImageRect[0], 
                         self.maxImageRect[1])
                     .scaled(
-                        int(x*self.zoom/100.0), 
-                        int(y*self.zoom/100.0), 
+                        int(x*self.zoom), 
+                        int(y*self.zoom), 
                         QtCore.Qt.KeepAspectRatio, 
                         QtCore.Qt.SmoothTransformation))
             pixmap = pixmap.copy(
@@ -126,7 +122,6 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
                                 0,
                                 min(screen_size.width(), pixmap.width()),
                                 min(screen_size.height(), pixmap.height()))
-            print "real size: ", pixmap.width(), pixmap.height()
         self.imageLabel.setPixmap(pixmap)
 
     def _prevImage(self):
