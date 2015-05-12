@@ -93,7 +93,9 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
             x, y = self.qImages[image.location].width(), self.qImages[image.location].height()
             self.currentImagePosition = [0, 0]
             self.maxImageRect = [x, y]
-            self.zoom = 1.0
+            screen_size = QtGui.QDesktopWidget().screenGeometry()
+            self.zoom = min(1.0, float(screen_size.height())/float(y))
+            print self.zoom
             self._updateImage()
         self.setWindowTitle(window_title)
         self.tagsEdit.setText(tags)
