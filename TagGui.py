@@ -95,36 +95,40 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
             self.maxImageRect = [x, y]
             screen_size = QtGui.QDesktopWidget().screenGeometry()
             self.zoom = min(1.0, float(screen_size.height())/float(y))
-            print self.zoom
             self._updateImage()
         self.setWindowTitle(window_title)
         self.tagsEdit.setText(tags)
 
     def _updateImage(self):
         image = self._getCurrentImage()
-        pixmap = QtGui.QPixmap()
-        if image:
-            x, y = self.qImages[image.location].width(), self.qImages[image.location].height()
-            screen_size = QtGui.QDesktopWidget().screenGeometry()
-            size = [min(screen_size.width(), x), min(screen_size.height(), y)]
-            pixmap = QtGui.QPixmap.fromImage(
-                self.qImages[image.location]
-                    .copy(
-                        self.currentImagePosition[0], 
-                        self.currentImagePosition[1],
-                        self.maxImageRect[0], 
-                        self.maxImageRect[1])
-                    .scaled(
-                        int(x*self.zoom), 
-                        int(y*self.zoom), 
-                        QtCore.Qt.KeepAspectRatio, 
-                        QtCore.Qt.SmoothTransformation))
-            pixmap = pixmap.copy(
-                                0,
-                                0,
-                                min(screen_size.width(), pixmap.width()),
-                                min(screen_size.height(), pixmap.height()))
-        self.imageLabel.setPixmap(pixmap)
+        if image.location[-3:] == "gif":
+            movie = QtGui.QMovie(image.location)
+            self.imageLabel.setMovie(movie)
+            movie.start()
+        else:
+            pixmap = QtGui.QPixmap()
+            if image:
+                x, y = self.qImages[image.location].width(), self.qImages[image.location].height()
+                screen_size = QtGui.QDesktopWidget().screenGeometry()
+                size = [min(screen_size.width(), x), min(screen_size.height(), y)]
+                pixmap = QtGui.QPixmap.fromImage(
+                    self.qImages[image.location]
+                        .copy(
+                            self.currentImagePosition[0], 
+                            self.currentImagePosition[1],
+                            self.maxImageRect[0], 
+                            self.maxImageRect[1])
+                        .scaled(
+                            int(x*self.zoom), 
+                            int(y*self.zoom), 
+                            QtCore.Qt.KeepAspectRatio, 
+                            QtCore.Qt.SmoothTransformation))
+                pixmap = pixmap.copy(
+                                    0,
+                                    0,
+                                    min(screen_size.width(), pixmap.width()),
+                                    min(screen_size.height(), pixmap.height()))
+            self.imageLabel.setPixmap(pixmap)
 
     def _prevImage(self):
         self.currentIndex -= 1
