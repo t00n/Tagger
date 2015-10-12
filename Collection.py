@@ -17,8 +17,9 @@ class Collection:
 	TAGFILE = ".tagger"
 	def __init__(self, directory):
 		if (directory[-1] != "/"):
-			directory = directory + "/"
-		os.chdir(directory)
+			directory += "/"
+		self.directory = directory
+		self.subcollections = []
 		self.load()
 
 	# TODO optimize load and scan
@@ -35,17 +36,25 @@ class Collection:
 			self.scan()
 
 	def save(self):
-		with open(self.TAGFILE, "w") as f:
+		with open(self.directory + self.TAGFILE, "w") as f:
 			json.dump(dict((imagehash, img.__dict__) for imagehash, img in self.images.iteritems()), f)
+		for subcollection in self.subcollections:
+			subcollection.save()
 
-	def scan(self, directory = "."):
-		for afile in os.listdir(directory):
-			filename = directory + "/" + afile
+	def scan(self):
+		for afile in os.listdir(self.directory):
+			filename = self.directory + afile
 			img = Image(filename)
 			if (img.isImage()):
 				self._addImage(filename)
 			elif (os.path.isdir(filename)):
-				self.scan(filename)
+				self.subcollections.append(Collection(filename))
+
+	def allimages(self):
+		res = self.images
+		for subcollection in self.subcollections:
+			res.update(subcollection.images)
+		return res
 
 	# TODO query system : parenthesis and approximation
 	def query(self, query):
@@ -56,17 +65,27 @@ class Collection:
 				ret = ret | set(self._queryAnd(arg))
 			else:
 				ret = self.query(arg)
+		for subcollection in self.subcollections:
+			t = subcollection.query(query)
+			print t
+			ret |= t
 		return ret
 
 	def addTags(self, image, tags):
 		hach = hashfile(image)
 		if hach in self.images:
 			self.images[hach].addTags(tags)
+		else:
+			for subcollection in self.subcollections:
+				subcollection.addTags(image, tags)
 
 	def removeTags(self, image, tags):
 		hach = hashfile(image)
 		if hach in self.image:
 			self.image[hach].removeTags(tags)
+		else:
+			for subcollection in self.subcollections:
+				subcollection.removeTags(image, tags)
 
 	def _addImage(self, afile):
 		hach = hashfile(afile)

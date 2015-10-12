@@ -154,7 +154,7 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
         if self.collection:
             query = str(self.queryEdit.text()).strip()
             if query == "":
-                self.currentImages = self.collection.images.values()
+                self.currentImages = self.collection.allimages().values()
             else:
                 self.currentImages = list(self.collection.query(query))
             self._showCollection()
