@@ -29,7 +29,7 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
         self.qImages = {}
         self.zoom = 1.0
         # TODO remove test mode
-        self.collection = Collection("/home/toon/Pictures")
+        self.collection = None
         self._queryCollection()
 
     def keyPressEvent(self, event):
@@ -81,7 +81,7 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
         image = self._getCurrentImage()
         window_title = self.WINDOW_TITLE
         tags = ""
-        if image:
+        if image and image.location:
             # window title
             window_title += " - " + image.location
             # tags
@@ -113,21 +113,11 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
                 size = [min(screen_size.width(), x), min(screen_size.height(), y)]
                 pixmap = QtGui.QPixmap.fromImage(
                     self.qImages[image.location]
-                        .copy(
-                            self.currentImagePosition[0], 
-                            self.currentImagePosition[1],
-                            self.maxImageRect[0], 
-                            self.maxImageRect[1])
                         .scaled(
                             int(x*self.zoom), 
                             int(y*self.zoom), 
                             QtCore.Qt.KeepAspectRatio, 
                             QtCore.Qt.SmoothTransformation))
-                pixmap = pixmap.copy(
-                                    0,
-                                    0,
-                                    min(screen_size.width(), pixmap.width()),
-                                    min(screen_size.height(), pixmap.height()))
             self.imageLabel.setPixmap(pixmap)
 
     def _prevImage(self):
@@ -162,7 +152,7 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
     def _openCollection(self):
         dir = QtGui.QFileDialog.getExistingDirectory()
         if dir != "":
-            self.collection = Collection(dir)
+            self.collection = Collection(str(dir))
             self._queryCollection()
 
     def _scanCollection(self):
