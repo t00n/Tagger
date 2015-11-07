@@ -19,7 +19,7 @@ class Collection:
         if (directory[-1] != "/"):
             directory += "/"
         self.directory = directory
-        self.subcollections = []
+        self.subcollections = dict()
         self.load()
 
     # TODO optimize load and scan
@@ -34,20 +34,24 @@ class Collection:
                     if (image.isImage()):
                         self.images[imagehash] = image
         except IOError:
-            self.scan()
-        for afile in os.listdir(self.directory):
-            filename = self.directory + afile
-            if os.path.isdir(filename):
-                self.subcollections.append(Collection(filename))
+            print "could not open " + self.directory, ". No " + self.TAGFILE
+            self._scan()
+        self._checksubdir()
 
     def save(self):
         print "saving " + str(len(self.images)) + " to " + self.directory + self.TAGFILE
         with open(self.directory + self.TAGFILE, "w") as f:
             json.dump(dict((imagehash, img.__dict__) for imagehash, img in self.images.iteritems()), f)
-        for subcollection in self.subcollections:
+        for subcollection in self.subcollections.itervalues():
             subcollection.save()
 
-    def scan(self):
+    def _checksubdir(self):
+        for afile in os.listdir(self.directory):
+            filename = self.directory + afile
+            if (os.path.isdir(filename) and not filename in self.subcollections.itervalues()):
+                self.subcollections[filename] = Collection(filename)
+
+    def _scan(self):
         print "scanning " + self.directory
         for afile in os.listdir(self.directory):
             filename = self.directory + afile
@@ -55,10 +59,17 @@ class Collection:
             if (img.isImage()):
                 self._addImage(filename)
 
+    def scan(self):
+        self._scan()
+        self._checksubdir()
+        for subcollection in self.subcollections.itervalues():
+            subcollection.scan()
+
+
     def allimages(self):
         res = dict()
         res.update(self.images)
-        for subcollection in self.subcollections:
+        for subcollection in self.subcollections.itervalues():
             res.update(subcollection.allimages())
         return res
 
@@ -71,26 +82,10 @@ class Collection:
                 ret = ret | set(self._queryAnd(arg))
             else:
                 ret = self.query(arg)
-        for subcollection in self.subcollections:
+        for subcollection in self.subcollections.itervalues():
             t = subcollection.query(query)
             ret |= t
         return ret
-
-    def addTags(self, image, tags):
-        hach = hashfile(image)
-        if hach in self.images:
-            self.images[hach].addTags(tags)
-        else:
-            for subcollection in self.subcollections:
-                subcollection.addTags(image, tags)
-
-    def removeTags(self, image, tags):
-        hach = hashfile(image)
-        if hach in self.image:
-            self.image[hach].removeTags(tags)
-        else:
-            for subcollection in self.subcollections:
-                subcollection.removeTags(image, tags)
 
     def _addImage(self, afile):
         hach = hashfile(afile)

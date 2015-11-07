@@ -43,6 +43,13 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
         elif event.key() == QtCore.Qt.Key_Space:
             self.currentImagePosition = [0, 0]
             self._showImage()
+        # elif event.key() == QtCore.Qt.Key_Delete and self.collection and self._getCurrentImage():
+        #     reply = QtGui.QMessageBox.question(self, 'Message', "Are you sure you want to delete this picture ?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        #     if reply == QtGui.QMessageBox.Yes:
+        #         image = self._getCurrentImage()
+        #         self.collection.deleteImage(image)
+        #         self._nextImage()
+        #         del self.qImages[image.location]
 
     def mouseMoveEvent(self, event):
         deltaX, deltaY = event.x() - self.oldMousePosition[0], event.y() - self.oldMousePosition[1]
