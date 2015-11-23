@@ -40,8 +40,12 @@ class Collection:
 
     def save(self):
         print "saving " + str(len(self.images)) + " to " + self.directory + self.TAGFILE
+        newimages = {}
+        for key, img in self.images.iteritems():
+            if img.location.split("/")[-2] == self.directory.split("/")[-2]:
+                newimages[key] = img
         with open(self.directory + self.TAGFILE, "w") as f:
-            json.dump(dict((imagehash, img.__dict__) for imagehash, img in self.images.iteritems()), f)
+            json.dump(dict((imagehash, img.__dict__) for imagehash, img in newimages.iteritems()), f)
         for subcollection in self.subcollections.itervalues():
             subcollection.save()
 
@@ -86,6 +90,18 @@ class Collection:
             t = subcollection.query(query)
             ret |= t
         return ret
+
+    def deleteImage(self, image):
+        os.remove(image.location)
+        hach = hashfile(image.location)
+        self._deleteImage(hach)
+
+    def _deleteImage(self, hach):
+        if hach in self.images:
+            del self.images[hach]
+        else:
+            for subcollection in self.subcollections:
+                subcollection._deleteImage(hach)
 
     def _addImage(self, afile):
         hach = hashfile(afile)
