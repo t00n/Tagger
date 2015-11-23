@@ -1,19 +1,27 @@
 import os
 
+class NotImageError(Exception):
+	pass
+
 class Image:
-	def __init__(self, location = None, tags = [], json = None):
-		if (json):
-			self.tags = json["tags"]
-			self.location = json["location"]
-		else:
-			self.tags = tags
-			self.location = location
+	EXTENSIONS = [".jpg", ".jpeg", ".png", ".gif", ".jpe"]
+	def __init__(self, location = None, tags = []):
+		self.setTags(tags)
+		self.location = location
+		if not self._isImage():
+			raise NotImageError
 
 	def __repr__(self):
 		return str(self.__dict__)
 
-	def isImage(self):
-		return os.path.isfile(self.location) and self.location.split(".")[-1].lower() in ["jpg", "jpeg", "png", "gif", "jpe"]
+	def _isImage(self):
+		return os.path.isfile(self.location) and os.path.splitext(self.location)[1].lower() in self.EXTENSIONS
+
+	def setTags(self, tags):
+		self.tags = tags
+
+	def getTags(self):
+		return self.tags
 
 	def addTags(self, tags):
 		for tag in tags:
@@ -30,13 +38,3 @@ class Image:
 	def removeTag(self, tag):
 		if tag in self.tags:
 			self.tags.remove(tag)
-
-if __name__ == '__main__':
-	img = Image("05.jpg", ["caca", "brol"])
-	assert(str(img) == "{'location': '05.jpg', 'tags': ['caca', 'brol']}")
-	img.addTag("caca")
-	assert(str(img) == "{'location': '05.jpg', 'tags': ['caca', 'brol']}")
-	img.addTag("truc")
-	assert(str(img) == "{'location': '05.jpg', 'tags': ['caca', 'brol', 'truc']}")
-	img.removeTag("caca")
-	assert(str(img) == "{'location': '05.jpg', 'tags': ['brol', 'truc']}")

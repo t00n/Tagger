@@ -2,7 +2,7 @@ import os
 import json
 import hashlib
 import re
-from Image import Image
+from Image import *
 
 def hashfile(afile, blocksize=65536):
     with open(afile, "r") as f:
@@ -30,9 +30,11 @@ class Collection:
                 print "opening " + self.directory
                 gayson = json.load(f)
                 for imagehash, img in gayson.iteritems():
-                    image = Image(json=img)
-                    if (image.isImage()):
+                    try:
+                        image = Image(img['location'], img['tags'])
                         self.images[imagehash] = image
+                    except NotImageError:
+                        print img['location'], " is not an image."
         except IOError:
             print "could not open " + self.directory, ". No " + self.TAGFILE
             self._scan()
