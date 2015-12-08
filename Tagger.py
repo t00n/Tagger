@@ -1,5 +1,4 @@
 from Collection import Collection
-from Config import Config
 
 import argh
 import os

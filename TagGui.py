@@ -2,13 +2,12 @@ from PyQt4 import QtGui, QtCore
 import sys
 from copy import deepcopy
 
-from Config import Config
 from Collection import Collection
 import MainWindowUI
 
 class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
     WINDOW_TITLE = "TagGui"
-    def __init__(self, config, parent=None):
+    def __init__(self, parent=None):
         super(TagGuiWindow, self).__init__(parent)
         self.setupUi(self)
         self.setMouseTracking(True)
@@ -181,7 +180,6 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
 
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
-    config = Config()
-    window = TagGuiWindow(config)
+    window = TagGuiWindow()
     window.show()
     app.exec_()

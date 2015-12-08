@@ -28,8 +28,8 @@ class Collection:
         try:
             with open(self.directory + filename, "r") as f:
                 print("opening " + self.directory)
-                gayson = json.load(f)
-                for imagehash, img in gayson.items():
+                data = json.load(f)
+                for imagehash, img in data.items():
                     try:
                         image = Image(img['location'], img['tags'])
                         self.images[imagehash] = image
