@@ -5,7 +5,7 @@ import re
 from Image import *
 
 def hashfile(afile, blocksize=65536):
-    with open(afile, "r") as f:
+    with open(afile, "rb") as f:
         hasher = hashlib.sha1()
         buf = f.read(blocksize)
         while len(buf) > 0:
@@ -71,6 +71,16 @@ class Collection:
         for subcollection in self.subcollections.values():
             subcollection.scan()
 
+
+    def addTags(self, image, tags):
+        hach = hashfile(image)
+        if hach in self.images:
+            self.images[hach].addTags(tags)
+
+    def removeTags(self, image, tags):
+        hach = hashfile(image)
+        if hach in self.images:
+            self.images[hach].removeTags(tags)
 
     def allimages(self):
         res = dict()
