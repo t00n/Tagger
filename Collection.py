@@ -27,38 +27,38 @@ class Collection:
         self.images = {}
         try:
             with open(self.directory + self.TAGFILE, "r") as f:
-                print "opening " + self.directory
+                print("opening " + self.directory)
                 gayson = json.load(f)
-                for imagehash, img in gayson.iteritems():
+                for imagehash, img in gayson.items():
                     try:
                         image = Image(img['location'], img['tags'])
                         self.images[imagehash] = image
                     except NotImageError:
-                        print img['location'], " is not an image."
+                        print(img['location'], " is not an image.")
         except IOError:
-            print "could not open " + self.directory, ". No " + self.TAGFILE
+            print("could not open " + self.directory, ". No " + self.TAGFILE)
             self._scan()
         self._checksubdir()
 
     def save(self):
-        print "saving " + str(len(self.images)) + " to " + self.directory + self.TAGFILE
+        print("saving " + str(len(self.images)) + " to " + self.directory + self.TAGFILE)
         newimages = {}
-        for key, img in self.images.iteritems():
+        for key, img in self.images.items():
             if img.location.split("/")[-2] == self.directory.split("/")[-2]:
                 newimages[key] = img
         with open(self.directory + self.TAGFILE, "w") as f:
-            json.dump(dict((imagehash, img.__dict__) for imagehash, img in newimages.iteritems()), f)
-        for subcollection in self.subcollections.itervalues():
+            json.dump(dict((imagehash, img.__dict__) for imagehash, img in newimages.items()), f)
+        for subcollection in self.subcollections.values():
             subcollection.save()
 
     def _checksubdir(self):
         for afile in os.listdir(self.directory):
             filename = self.directory + afile
-            if (os.path.isdir(filename) and not filename in self.subcollections.itervalues()):
+            if (os.path.isdir(filename) and not filename in self.subcollections.values()):
                 self.subcollections[filename] = Collection(filename)
 
     def _scan(self):
-        print "scanning " + self.directory
+        print("scanning " + self.directory)
         for afile in os.listdir(self.directory):
             filename = self.directory + afile
             img = Image(filename)
@@ -68,14 +68,14 @@ class Collection:
     def scan(self):
         self._scan()
         self._checksubdir()
-        for subcollection in self.subcollections.itervalues():
+        for subcollection in self.subcollections.values():
             subcollection.scan()
 
 
     def allimages(self):
         res = dict()
         res.update(self.images)
-        for subcollection in self.subcollections.itervalues():
+        for subcollection in self.subcollections.values():
             res.update(subcollection.allimages())
         return res
 
@@ -88,7 +88,7 @@ class Collection:
                 ret = ret | set(self._queryAnd(arg))
             else:
                 ret = self.query(arg)
-        for subcollection in self.subcollections.itervalues():
+        for subcollection in self.subcollections.values():
             t = subcollection.query(query)
             ret |= t
         return ret
@@ -119,7 +119,7 @@ class Collection:
     def _queryAnd(self, query):
         args = self._parseQueryArgs(query, "and")
         res = set()
-        for imagehash, img in self.images.iteritems():
+        for imagehash, img in self.images.items():
             tmp = True
             for arg in args:
                 if (arg[:4] == "not " and arg[4:] not in img.tags):
@@ -133,7 +133,7 @@ class Collection:
     def _queryOr(self, query):
         args = self._parseQueryArgs(query, "or")
         res = set()
-        for imagehash, img in self.images.iteritems():
+        for imagehash, img in self.images.items():
             tmp = False
             for arg in args:
                 if (arg[:4] == "not " and arg[4:] in img.tags):
