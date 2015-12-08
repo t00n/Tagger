@@ -1,2 +1,2 @@
-python-qt5
 aaargh
+PyQt4
