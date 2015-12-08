@@ -61,9 +61,11 @@ class Collection:
         print("scanning " + self.directory)
         for afile in os.listdir(self.directory):
             filename = self.directory + afile
-            img = Image(filename)
-            if (img.isImage()):
+            try:
+                img = Image(filename)
                 self._addImage(filename)
+            except NotImageError:
+                pass
 
     def scan(self):
         self._scan()
