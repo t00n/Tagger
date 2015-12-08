@@ -11,9 +11,6 @@ class Image:
 		if not self._is_image():
 			raise NotImageError
 
-	def __repr__(self):
-		return str(self.__dict__)
-
 	def _is_image(self):
 		return os.path.isfile(self.location) and os.path.splitext(self.location)[1].lower() in self.EXTENSIONS
 

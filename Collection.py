@@ -24,52 +24,17 @@ class Collection:
 
     # TODO optimize load and scan
     def load(self, filename=TAGFILE):
-        self.images = {}
-        try:
-            with open(self.directory + filename, "r") as f:
-                print("opening " + self.directory)
-                data = json.load(f)
-                for imagehash, img in data.items():
-                    try:
-                        image = Image(img['location'], img['tags'])
-                        self.images[imagehash] = image
-                    except NotImageError:
-                        print(img['location'], " is not an image.")
-        except IOError:
-            print("could not open " + self.directory, ". No " + filename)
-            self._scan()
-        self._checksubdir()
+        self._load()
+        self._createsubcollections()
 
     def save(self, filename=TAGFILE):
-        print("saving " + str(len(self.images)) + " to " + self.directory + filename)
-        newimages = {}
-        for key, img in self.images.items():
-            if img.location.split("/")[-2] == self.directory.split("/")[-2]:
-                newimages[key] = img
-        with open(self.directory + filename, "w") as f:
-            json.dump(dict((imagehash, img.__dict__) for imagehash, img in newimages.items()), f)
+        self._save()
         for subcollection in self.subcollections.values():
             subcollection.save()
 
-    def _checksubdir(self):
-        for afile in os.listdir(self.directory):
-            filename = self.directory + afile
-            if (os.path.isdir(filename) and not filename in self.subcollections.values()):
-                self.subcollections[filename] = Collection(filename)
-
-    def _scan(self):
-        print("scanning " + self.directory)
-        for afile in os.listdir(self.directory):
-            filename = self.directory + afile
-            try:
-                img = Image(filename)
-                self._addImage(filename)
-            except NotImageError:
-                pass
-
     def scan(self):
         self._scan()
-        self._checksubdir()
+        self._createsubcollections()
         for subcollection in self.subcollections.values():
             subcollection.scan()
 
@@ -81,12 +46,72 @@ class Collection:
         hach = hashfile(name)
         self.images[hach] = val
 
-    def allimages(self):
+    def all_images(self):
         res = dict()
         res.update(self.images)
         for subcollection in self.subcollections.values():
-            res.update(subcollection.allimages())
+            res.update(subcollection.all_images())
         return res
+
+    def delete_image(self, image):
+        os.remove(image.location)
+        hach = hashfile(image.location)
+        self._remove_image(hach)
+
+    def _createsubcollections(self):
+        for afile in os.listdir(self.directory):
+            filename = self.directory + afile
+            if (os.path.isdir(filename) and not filename in self.subcollections.keys()):
+                self.subcollections[filename] = Collection(filename)
+
+    def _load(self):
+        self.images = {}
+        try:
+            with open(self.directory + self.TAGFILE, "r") as f:
+                print("opening " + self.directory)
+                data = json.load(f)
+                for imagehash, img in data.items():
+                    try:
+                        image = Image(img['location'], img['tags'])
+                        self.images[imagehash] = image
+                    except NotImageError:
+                        print(img['location'], " is not an image.")
+        except IOError:
+            print("could not open " + self.directory, ". No " + self.TAGFILE)
+            self._scan()
+
+    def _save(self):
+        if len(self.images) > 0:
+            print("saving " + str(len(self.images)) + " to " + self.directory + self.TAGFILE)
+            with open(self.directory + self.TAGFILE, "w") as f:
+                json.dump({imagehash: img.__dict__ for imagehash, img in self.images.items()}, f)
+
+    def _scan(self):
+        print("scanning " + self.directory)
+        for afile in os.listdir(self.directory):
+            filename = self.directory + afile
+            try:
+                img = Image(filename)
+                self._add_image(filename)
+            except NotImageError:
+                print(filename, " is not an image")
+
+    def _add_image(self, image, tags=[]):
+        print(os.path.dirname(image), self.directory)
+        if os.path.dirname(image) == self.directory[:-1]:
+            hach = hashfile(image)
+            if (hach not in self.images):
+                self.images[hach] = Image(image, tags)
+        else:
+            for subcollection in self.subcollections.values():
+                subcollection._add_image(image)
+
+    def _remove_image(self, hach):
+        if hach in self.images:
+            del self.images[hach]
+        else:
+            for subcollection in self.subcollections.values():
+                subcollection._remove_image(hach)
 
     # TODO query system : parenthesis and approximation
     def query(self, query):
@@ -101,23 +126,6 @@ class Collection:
             t = subcollection.query(query)
             ret |= t
         return ret
-
-    def deleteImage(self, image):
-        os.remove(image.location)
-        hach = hashfile(image.location)
-        self._deleteImage(hach)
-
-    def _deleteImage(self, hach):
-        if hach in self.images:
-            del self.images[hach]
-        else:
-            for subcollection in self.subcollections:
-                subcollection._deleteImage(hach)
-
-    def _addImage(self, afile):
-        hach = hashfile(afile)
-        if (hach not in self.images):
-            self.images[hach] = Image(afile)
 
     def _parseQueryArgs(self, query, operator):
         args = query.split(" " + operator + " ")
@@ -152,16 +160,3 @@ class Collection:
             if (tmp):
                 res.add(img)
         return res
-
-if __name__ == '__main__':
-    collection = Collection("test")
-    collection.load()
-    _queryAnd = collection._queryAnd("01 and Dragon Ball")
-    assert(str(_queryAnd) == "set([{'location': u'./01.jpg', 'tags': [u'01', u'Dragon Ball']}])")
-    _queryOr = collection._queryOr("01 or 03")
-    assert(str(_queryOr) == "set([{'location': u'./03.jpg', 'tags': [u'03', u'Dragon Ball']}, {'location': u'./01.jpg', 'tags': [u'01', u'Dragon Ball']}])")
-    query = collection.query("01 and Dragon Ball or 03 and Dragon Ball")
-    assert(str(query) == "set([{'location': u'./03.jpg', 'tags': [u'03', u'Dragon Ball']}, {'location': u'./01.jpg', 'tags': [u'01', u'Dragon Ball']}])")
-    negquery = collection.query("01 and not Dragon Bal and not caca and not Dragon Ball or Dragon Ball")
-    assert(str(negquery) == "set([{'location': u'./soustest/05.jpg', 'tags': [u'05', u'Dragon Ball']}, {'location': u'./03.jpg', 'tags': [u'03', u'Dragon Ball']}, {'location': u'./01.jpg', 'tags': [u'01', u'Dragon Ball']}, {'location': u'./soustest/06.jpg', 'tags': [u'06', u'Dragon Ball']}])")
-    

@@ -48,7 +48,7 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
                 image = self._getCurrentImage()
                 self._nextImage()
                 del self.qImages[image.location]
-                self.collection.deleteImage(image)
+                self.collection.delete_image(image)
 
     def mouseMoveEvent(self, event):
         deltaX, deltaY = event.x() - self.oldMousePosition[0], event.y() - self.oldMousePosition[1]
@@ -150,7 +150,7 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
         if self.collection:
             query = str(self.queryEdit.text()).strip()
             if query == "":
-                self.currentImages = list(self.collection.allimages().values())
+                self.currentImages = list(self.collection.all_images().values())
             else:
                 self.currentImages = list(self.collection.query(query))
             self._showCollection()
@@ -175,8 +175,7 @@ class TagGuiWindow(QtGui.QMainWindow, MainWindowUI.Ui_MainWindow):
         """ Retrieve tags from tags line edit and assign them to current image """
         image = self._getCurrentImage()
         if image:
-            tags = map(lambda s: s.strip(), str(self.tagsEdit.text()).split(","))
-            image.tags = tags
+            image.tags = list(map(lambda s: s.strip(), str(self.tagsEdit.text()).split(",")))
 
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
