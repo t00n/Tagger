@@ -1,7 +1,9 @@
-all: main
 
 ui:
 	pyuic4 qt.ui -o MainWindowUI.py
 
-main:
-	python2 TagGui.py
+clean:
+	rm *.pyc
+	rm -rf __pycache__/
+
+mrproper: clean
