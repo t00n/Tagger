@@ -6,35 +6,35 @@ class NotImageError(Exception):
 class Image:
 	EXTENSIONS = [".jpg", ".jpeg", ".png", ".gif", ".jpe"]
 	def __init__(self, location = None, tags = []):
-		self.setTags(tags)
+		self.set_tags(tags)
 		self.location = location
-		if not self._isImage():
+		if not self._is_image():
 			raise NotImageError
 
 	def __repr__(self):
 		return str(self.__dict__)
 
-	def _isImage(self):
+	def _is_image(self):
 		return os.path.isfile(self.location) and os.path.splitext(self.location)[1].lower() in self.EXTENSIONS
 
-	def setTags(self, tags):
+	def set_tags(self, tags):
 		self.tags = tags
 
-	def getTags(self):
+	def get_tags(self):
 		return self.tags
 
-	def addTags(self, tags):
+	def add_tags(self, tags):
 		for tag in tags:
-			self.addTag(tag)
+			self.add_tag(tag)
 
-	def addTag(self, tag):
+	def add_tag(self, tag):
 		if tag not in self.tags:
 			self.tags.append(tag)
 
-	def removeTags(self, tags):
+	def remove_tags(self, tags):
 		for tag in tags:
-			self.removeTag(tag)
+			self.remove_tag(tag)
 
-	def removeTag(self, tag):
+	def remove_tag(self, tag):
 		if tag in self.tags:
 			self.tags.remove(tag)

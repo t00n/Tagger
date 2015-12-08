@@ -71,16 +71,13 @@ class Collection:
         for subcollection in self.subcollections.values():
             subcollection.scan()
 
+    def __getitem__(self, name):
+        hach = hashfile(name)
+        return self.images[hach]
 
-    def addTags(self, image, tags):
-        hach = hashfile(image)
-        if hach in self.images:
-            self.images[hach].addTags(tags)
-
-    def removeTags(self, image, tags):
-        hach = hashfile(image)
-        if hach in self.images:
-            self.images[hach].removeTags(tags)
+    def __setitem__(self, name, val):
+        hach = hashfile(name)
+        self.images[hach] = val
 
     def allimages(self):
         res = dict()
