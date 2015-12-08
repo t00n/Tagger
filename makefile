@@ -6,4 +6,4 @@ clean:
 	rm *.pyc
 	rm -rf __pycache__/
 
-mrproper: clean
+.PHONY: clean
