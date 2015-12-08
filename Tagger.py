@@ -27,7 +27,7 @@ def add(images=[], tags=[]):
 		collection = Collection(dirname)
 		for filename in files:
 			collection[filename].add_tags(tags)
-		collection.save('.tagger2')
+		collection.save()
 
 @argh.arg('--images', nargs='+', type=str)
 @argh.arg('--tags', nargs='+', type=str)
@@ -36,7 +36,7 @@ def remove(images=[], tags=[]):
 		collection = Collection(dirname)
 		for filename in files:
 			collection[filename].remove_tags(tags)
-		collection.save('.tagger2')
+		collection.save()
 
 @argh.arg('tags', nargs='+', type=str)
 def addall(directory, tags):
