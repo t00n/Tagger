@@ -23,10 +23,10 @@ class Collection:
         self.load()
 
     # TODO optimize load and scan
-    def load(self):
+    def load(self, filename=TAGFILE):
         self.images = {}
         try:
-            with open(self.directory + self.TAGFILE, "r") as f:
+            with open(self.directory + filename, "r") as f:
                 print("opening " + self.directory)
                 gayson = json.load(f)
                 for imagehash, img in gayson.items():
@@ -36,17 +36,17 @@ class Collection:
                     except NotImageError:
                         print(img['location'], " is not an image.")
         except IOError:
-            print("could not open " + self.directory, ". No " + self.TAGFILE)
+            print("could not open " + self.directory, ". No " + filename)
             self._scan()
         self._checksubdir()
 
-    def save(self):
-        print("saving " + str(len(self.images)) + " to " + self.directory + self.TAGFILE)
+    def save(self, filename=TAGFILE):
+        print("saving " + str(len(self.images)) + " to " + self.directory + filename)
         newimages = {}
         for key, img in self.images.items():
             if img.location.split("/")[-2] == self.directory.split("/")[-2]:
                 newimages[key] = img
-        with open(self.directory + self.TAGFILE, "w") as f:
+        with open(self.directory + filename, "w") as f:
             json.dump(dict((imagehash, img.__dict__) for imagehash, img in newimages.items()), f)
         for subcollection in self.subcollections.values():
             subcollection.save()
